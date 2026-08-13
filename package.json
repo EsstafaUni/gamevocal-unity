@@ -1,0 +1,32 @@
+{
+  "name": "com.gamevocal.plugin",
+  "version": "1.0.1",
+  "displayName": "GameVocal",
+  "description": "Syncs dialogue audio, lip-sync data, and localization from the GameVocal cloud directly into your Unity project. Includes a runtime GameVocalCharacter component with ARKit52 blendshape animation and an editor window for one-click asset syncing.",
+  "unity": "2022.3",
+  "unityRelease": "0f1",
+  "author": {
+    "name": "GameVocal",
+    "email": "support@gamevocal.com",
+    "url": "https://gamevocal.com"
+  },
+  "type": "library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EsstafaUni/gamevocal-unity.git"
+  },
+  "license": "MIT",
+  "licensesUrl": "https://github.com/EsstafaUni/gamevocal-unity/blob/main/LICENSE.md",
+  "changelogUrl": "https://github.com/EsstafaUni/gamevocal-unity/blob/main/CHANGELOG.md",
+  "keywords": [
+    "dialogue",
+    "voice",
+    "localization",
+    "lip-sync",
+    "lipsync",
+    "audio"
+  ],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  }
+}
