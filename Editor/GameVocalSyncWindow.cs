@@ -234,7 +234,7 @@ namespace GameVocal.Editor
         private async void FetchProjects()
         {
             _errorMessage = "";
-            var response = await _apiClient.RequestArrayAsync("/projects");
+            var response = await _apiClient.RequestArrayAsync("/projects/");
             if (response == null) return;
 
             _projects.Clear();
