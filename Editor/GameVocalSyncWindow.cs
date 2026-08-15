@@ -121,6 +121,14 @@ namespace GameVocal.Editor
                 GameVocalSettings.ApiKey = newKey;
                 _errorMessage = "";
             }
+            
+            GUILayout.Space(5);
+            EditorGUI.BeginChangeCheck();
+            string newUrl = EditorGUILayout.TextField("API URL (Dev)", GameVocalSettings.ApiUrl);
+            if (EditorGUI.EndChangeCheck())
+            {
+                GameVocalSettings.ApiUrl = newUrl;
+            }
 
             if (!string.IsNullOrEmpty(_errorMessage))
             {

@@ -9,8 +9,6 @@ namespace GameVocal.Editor
 {
     public class GameVocalApiClient
     {
-        private const string BASE_URL = "https://api.gamevocal.com/api/v1";
-
         public event Action<string> OnError;
 
         public async Task<JObject> RequestAsync(string endpoint, string method = "GET", string payload = null)
@@ -22,7 +20,7 @@ namespace GameVocal.Editor
                 return null;
             }
 
-            string url = BASE_URL + endpoint;
+            string url = GameVocalSettings.ApiUrl + endpoint;
             using (UnityWebRequest www = new UnityWebRequest(url, method))
             {
                 www.SetRequestHeader("Authorization", "Bearer " + apiKey);
@@ -64,7 +62,7 @@ namespace GameVocal.Editor
             string apiKey = GameVocalSettings.ApiKey;
             if (string.IsNullOrEmpty(apiKey)) return null;
 
-            string url = BASE_URL + endpoint;
+            string url = GameVocalSettings.ApiUrl + endpoint;
             using (UnityWebRequest www = new UnityWebRequest(url, method))
             {
                 www.SetRequestHeader("Authorization", "Bearer " + apiKey);

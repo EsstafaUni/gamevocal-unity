@@ -57,6 +57,21 @@ namespace GameVocal.Editor
             }
         }
 
+        public static string ApiUrl
+        {
+            get
+            {
+                var settings = LoadSettings();
+                return settings["ApiUrl"]?.ToString() ?? "https://api.gamevocal.com/api/v1";
+            }
+            set
+            {
+                var settings = LoadSettings();
+                settings["ApiUrl"] = value != null ? value.Trim() : "https://api.gamevocal.com/api/v1";
+                SaveSettings(settings);
+            }
+        }
+
         public static string ActiveProjectId
         {
             get
