@@ -75,14 +75,19 @@ namespace GameVocal.Editor
                 var operation = www.SendWebRequest();
                 while (!operation.isDone) await Task.Delay(10);
 
-                if (www.result != UnityWebRequest.Result.Success) return null;
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    OnError?.Invoke($"API Error ({www.responseCode}): {www.error}\n{www.downloadHandler.text}");
+                    return null;
+                }
 
                 try
                 {
                     return JArray.Parse(www.downloadHandler.text);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    OnError?.Invoke("Failed to parse JSON response: " + ex.Message);
                     return null;
                 }
             }

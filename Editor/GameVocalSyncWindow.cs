@@ -17,6 +17,7 @@ namespace GameVocal.Editor
 
         private bool _isSyncing = false;
         private string _syncStatusMessage = "";
+        private string _errorMessage = "";
         private float _syncProgress = 0f;
 
         // Polling vars
@@ -49,7 +50,11 @@ namespace GameVocal.Editor
             _logoTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.gamevocal.plugin/Editor/icon.png");
 
             _apiClient = new GameVocalApiClient();
-            _apiClient.OnError += msg => Debug.LogError($"[GameVocal] {msg}");
+            _apiClient.OnError += msg => {
+                Debug.LogError($"[GameVocal] {msg}");
+                _errorMessage = msg;
+                Repaint();
+            };
 
             _downloadManager = new GameVocalDownloadManager();
             _downloadManager.OnProgress += (completed, total, file) =>
@@ -114,6 +119,13 @@ namespace GameVocal.Editor
             if (EditorGUI.EndChangeCheck())
             {
                 GameVocalSettings.ApiKey = newKey;
+                _errorMessage = "";
+            }
+
+            if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                GUILayout.Space(5);
+                EditorGUILayout.HelpBox(_errorMessage, MessageType.Error);
             }
 
             GUILayout.Space(5);
@@ -213,6 +225,7 @@ namespace GameVocal.Editor
 
         private async void FetchProjects()
         {
+            _errorMessage = "";
             var response = await _apiClient.RequestArrayAsync("/projects");
             if (response == null) return;
 
