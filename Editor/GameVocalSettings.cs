@@ -71,5 +71,20 @@ namespace GameVocal.Editor
                 SaveSettings(settings);
             }
         }
+
+        public static string ActiveProjectName
+        {
+            get
+            {
+                var settings = LoadSettings();
+                return settings["ActiveProjectName"]?.ToString() ?? "Project";
+            }
+            set
+            {
+                var settings = LoadSettings();
+                settings["ActiveProjectName"] = value;
+                SaveSettings(settings);
+            }
+        }
     }
 }

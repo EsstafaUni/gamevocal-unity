@@ -140,6 +140,7 @@ namespace GameVocal.Editor
                 if (EditorGUI.EndChangeCheck())
                 {
                     GameVocalSettings.ActiveProjectId = _projects[_selectedProjectIndex].id;
+                    GameVocalSettings.ActiveProjectName = _projects[_selectedProjectIndex].name;
                 }
                 GUILayout.EndVertical();
 
@@ -232,6 +233,7 @@ namespace GameVocal.Editor
             {
                 _selectedProjectIndex = 0;
                 GameVocalSettings.ActiveProjectId = _projects[0].id;
+                GameVocalSettings.ActiveProjectName = _projects[0].name;
             }
 
             Repaint();
@@ -264,65 +266,47 @@ namespace GameVocal.Editor
             string projId = _projects[_selectedProjectIndex].id;
             var response = await _apiClient.RequestAsync($"/projects/{projId}/manifest");
             
-            if (response == null)
-            {
-                _isSyncing = false;
-                Repaint();
-                return;
-            }
+            _isSyncing = false;
+            Repaint();
+
+            if (response == null) return;
 
             int remoteVersion = response["version"]?.Value<int>() ?? 0;
             JArray files = response["files"] as JArray;
 
             if (files == null || files.Count == 0)
             {
-                _isSyncing = false;
                 Debug.LogWarning("[GameVocal] Empty manifest received.");
+                return;
+            }
+
+            // Launch the Sync Selection Dialog
+            GameVocalSyncDialog.ShowDialog(files, _manifest, projId, remoteVersion, ExecuteSync);
+        }
+
+        private void ExecuteSync(List<GameVocalSyncDialog.SyncItem> itemsToSync, string projectId, int remoteVersion)
+        {
+            if (itemsToSync == null || itemsToSync.Count == 0)
+            {
+                _syncStatusMessage = "No files selected for sync.";
                 Repaint();
                 return;
             }
 
-            int queuedCount = 0;
-            foreach (JObject fileObj in files)
-            {
-                string logicalPath = fileObj["logical_path"]?.ToString();
-                string checksum = fileObj["checksum"]?.ToString();
-                string url = fileObj["url"]?.ToString();
-
-                bool needsDownload = true;
-                if (_manifest.files.TryGetValue(logicalPath, out string localHash))
-                {
-                    // Check if file exists on disk
-                    string absPath = GameVocalPathUtils.GetAbsolutePath(logicalPath);
-                    if (System.IO.File.Exists(absPath) && localHash == checksum)
-                    {
-                        needsDownload = false;
-                    }
-                }
-
-                if (needsDownload)
-                {
-                    _downloadManager.QueueDownload(url, logicalPath, checksum);
-                    queuedCount++;
-                }
-            }
-
-            if (queuedCount == 0)
-            {
-                _syncStatusMessage = "All files are up to date.";
-                _manifest.lastSyncVersion = remoteVersion;
-                _manifest.SaveManifest();
-                _isSyncing = false;
-            }
-            else
-            {
-                _syncStatusMessage = $"Queued {queuedCount} files for download...";
-                _manifest.projectId = projId;
-                _manifest.lastSyncVersion = remoteVersion;
-                _manifest.lastSync = System.DateTime.UtcNow.ToString("O");
-                _downloadManager.StartQueue();
-            }
+            _isSyncing = true;
+            _syncProgress = 0f;
+            _syncStatusMessage = $"Queued {itemsToSync.Count} files for download...";
             
+            foreach (var item in itemsToSync)
+            {
+                _downloadManager.QueueDownload(item.url, item.logicalPath, item.checksum);
+            }
+
+            _manifest.projectId = projectId;
+            _manifest.lastSyncVersion = remoteVersion;
+            _manifest.lastSync = System.DateTime.UtcNow.ToString("O");
+            
+            _downloadManager.StartQueue();
             Repaint();
         }
 

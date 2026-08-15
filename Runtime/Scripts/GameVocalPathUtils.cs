@@ -22,10 +22,19 @@ namespace GameVocal
 
         public static string GetImportRoot()
         {
-            // Mirroring Godot's "res://", we'll put synced assets into Assets/GameVocalData or similar
-            // For now, let's use the StreamingAssets folder or a custom GameVocal folder
-            // In the Editor sync, we used Application.dataPath + "/GameVocal/"
-            return Path.Combine(Application.dataPath, "GameVocal").Replace("\\", "/");
+            // Mirroring Godot's project-specific folders
+            string projectName = string.IsNullOrEmpty(Editor.GameVocalSettings.ActiveProjectName) 
+                ? "Project" 
+                : Editor.GameVocalSettings.ActiveProjectName;
+            
+            // Sanitize the project name to prevent invalid path characters
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                projectName = projectName.Replace(c.ToString(), "");
+            }
+            projectName = projectName.Replace(" ", "_");
+
+            return Path.Combine(Application.dataPath, "GameVocal", projectName).Replace("\\", "/");
         }
 
         public static string GetAbsolutePath(string relativePath)
