@@ -26,6 +26,7 @@ namespace GameVocal.Editor
                 www.SetRequestHeader("Authorization", "Bearer " + apiKey);
                 www.SetRequestHeader("Content-Type", "application/json");
                 www.SetRequestHeader("X-GameVocal-Engine", "unity");
+                www.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 GameVocalUnityPlugin/1.0");
 
                 if (!string.IsNullOrEmpty(payload) && method != "GET")
                 {
@@ -68,6 +69,7 @@ namespace GameVocal.Editor
                 www.SetRequestHeader("Authorization", "Bearer " + apiKey);
                 www.SetRequestHeader("Content-Type", "application/json");
                 www.SetRequestHeader("X-GameVocal-Engine", "unity");
+                www.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 GameVocalUnityPlugin/1.0");
                 www.downloadHandler = new DownloadHandlerBuffer();
 
                 var operation = www.SendWebRequest();
