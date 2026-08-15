@@ -22,10 +22,19 @@ namespace GameVocal
 
         public static string GetImportRoot()
         {
-            // Mirroring Godot's project-specific folders
-            string projectName = string.IsNullOrEmpty(Editor.GameVocalSettings.ActiveProjectName) 
-                ? "Project" 
-                : Editor.GameVocalSettings.ActiveProjectName;
+            string projectName = "Project";
+#if UNITY_EDITOR
+            var type = System.Type.GetType("GameVocal.Editor.GameVocalSettings, GameVocal.Editor");
+            if (type != null)
+            {
+                var prop = type.GetProperty("ActiveProjectName", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                if (prop != null)
+                {
+                    string name = prop.GetValue(null) as string;
+                    if (!string.IsNullOrEmpty(name)) projectName = name;
+                }
+            }
+#endif
             
             // Sanitize the project name to prevent invalid path characters
             foreach (char c in Path.GetInvalidFileNameChars())
