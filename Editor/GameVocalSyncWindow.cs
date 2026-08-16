@@ -223,6 +223,13 @@ namespace GameVocal.Editor
             EditorGUILayout.EndScrollView();
         }
 
+        private int ParseVersionSafe(JToken token)
+        {
+            if (token != null && int.TryParse(token.ToString(), out int val))
+                return val;
+            return 0;
+        }
+
         private async void FetchProjects()
         {
             _errorMessage = "";
@@ -236,7 +243,7 @@ namespace GameVocal.Editor
                 {
                     id = p["id"]?.ToString(),
                     name = p["name"]?.ToString(),
-                    version = p["version"]?.Value<int>() ?? 0
+                    version = ParseVersionSafe(p["version"])
                 });
             }
 
@@ -258,7 +265,7 @@ namespace GameVocal.Editor
             var response = await _apiClient.RequestAsync($"/projects/{projId}/sync-status");
             if (response != null)
             {
-                int remoteVersion = response["version"]?.Value<int>() ?? 0;
+                int remoteVersion = ParseVersionSafe(response["version"]);
                 if (remoteVersion > _manifest.lastSyncVersion)
                 {
                     Debug.Log($"[GameVocal] Cloud version {remoteVersion} > local version {_manifest.lastSyncVersion}. Auto-syncing...");
@@ -284,7 +291,7 @@ namespace GameVocal.Editor
 
             if (response == null) return;
 
-            int remoteVersion = response["version"]?.Value<int>() ?? 0;
+            int remoteVersion = ParseVersionSafe(response["version"]);
             JArray files = response["files"] as JArray;
 
             if (files == null || files.Count == 0)
