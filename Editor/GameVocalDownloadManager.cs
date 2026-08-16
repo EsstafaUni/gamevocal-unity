@@ -87,8 +87,20 @@ namespace GameVocal.Editor
 
             using (UnityWebRequest www = UnityWebRequest.Get(item.url))
             {
+                // Spoof user agent to avoid being blocked by Cloudflare/WAF bot protection
+                www.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 GameVocalUnityPlugin/1.0");
+                www.SetRequestHeader("X-GameVocal-Engine", "unity");
+
                 // Note: GameVocal presigned URLs usually include query parameters for auth
-                // (e.g. AWS S3 X-Amz-Signature). We don't add Authorization header here.
+                // (e.g. AWS S3 X-Amz-Signature). We conditionally add Authorization header if it looks like an API endpoint.
+                if (!item.url.Contains("X-Amz-Signature") && !item.url.Contains("Expires=") && !item.url.Contains("sig="))
+                {
+                    string apiKey = GameVocalSettings.ApiKey;
+                    if (!string.IsNullOrEmpty(apiKey))
+                    {
+                        www.SetRequestHeader("Authorization", "Bearer " + apiKey);
+                    }
+                }
                 
                 var handler = new DownloadHandlerFile(tempPath);
                 handler.removeFileOnAbort = true;
